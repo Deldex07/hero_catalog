@@ -20,16 +20,29 @@ typedef struct
     char alinhamento[20];
 } Personagem;
 
+/* --- Utilidades --- */
 void menu();
+int lerString(char *str, int tamanho);
+int compara_nomes(const void *a, const void *b);
+
+/* --- CRUD --- */
 void adicionar(Personagem vet[], int *qtd);
 void listar(Personagem vet[], int qtd);
+void listarOrdenado(Personagem vet[], int qtd);
 void buscar(Personagem vet[], int qtd);
+void editar(Personagem vet[], int qtd);
+void excluir(Personagem vet[], int *qtd);
+
+/* --- Filtros e pesquisas específicas --- */
 void filtrarClasse(Personagem vet[], int qtd);
 void filtrarEra(Personagem vet[], int qtd);
-int lerString(char *str, int tamanho);
-void editar(Personagem vet[], int qtd);
-/*funções extras*/
-void excluir(Personagem vet[], int *qtd);
+void filtrarAlinhamento(Personagem vet[], int qtd);
+
+/* --- Submenus --- */
+void menuListar(Personagem vet[], int qtd);
+void menuFiltrar(Personagem vet[], int qtd);
+
+/* --- Arquivos --- */
 void salvar(Personagem vet[], int qtd);
 void carregar(Personagem vet[], int *qtd);
 
@@ -63,18 +76,15 @@ int main()
             adicionar(catalogo, &qtd);
             break;
         case 2:
-            listar(catalogo, qtd);
+            menuListar(catalogo, qtd);
             break;
         case 3:
             buscar(catalogo, qtd);
             break;
         case 4:
-            filtrarClasse(catalogo, qtd);
+            menuFiltrar(catalogo, qtd);
             break;
         case 5:
-            filtrarEra(catalogo, qtd);
-            break;
-        case 6:
             excluir(catalogo, &qtd);
             break;
         case 0:
@@ -93,12 +103,86 @@ void menu()
 {
     printf("\n========== CATALOGO DE PERSONAGENS ==========\n");
     printf("1 - Adicionar personagem\n");
-    printf("2 - Listar todos\n");
+    printf("2 - Listar\n");
     printf("3 - Buscar por nome\n");
-    printf("4 - Filtrar por classe\n");
-    printf("5 - Filtrar por era\n");
-    printf("6 - Excluir personagem\n");
+    printf("4 - Filtrar\n");
+    printf("5 - Excluir personagem\n");
     printf("0 - Sair\n");
+}
+
+void menuListar(Personagem vet[], int qtd)
+{
+    int opcao;
+
+    printf("\n--- Menu de Listagem ---\n");
+    printf("1 - Listar todos os personagens\n");
+    printf("2 - Listar personagens em ordem alfabetica\n");
+    printf("0 - Voltar ao menu principal\n");
+    printf("Escolha uma opcao: ");
+    if (scanf("%d", &opcao) != 1)
+    {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF)
+            ;
+        opcao = -1;
+    }
+    else
+    {
+        getchar();
+    }
+    switch (opcao)
+    {
+    case 1:
+        listar(vet, qtd);
+        break;
+    case 2:
+        listarOrdenado(vet, qtd);
+        break;
+    case 0:
+        return;
+    default:
+        printf("Opcao invalida!\n");
+        break;
+    }
+}
+void menuFiltrar(Personagem vet[], int qtd)
+{
+    int opcao;
+
+    printf("\n--- Menu de Filtro ---\n");
+    printf("1 - Filtrar por classe\n");
+    printf("2 - Filtrar por era\n");
+    printf("3 - Filtrar por alinhamento\n");
+    printf("0 - Voltar ao menu principal\n");
+    printf("Escolha uma opcao: ");
+    if (scanf("%d", &opcao) != 1)
+    {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF)
+            ;
+        opcao = -1;
+    }
+    else
+    {
+        getchar();
+    }
+    switch (opcao)
+    {
+    case 1:
+        filtrarClasse(vet, qtd);
+        break;
+    case 2:
+        filtrarEra(vet, qtd);
+        break;
+    case 3:
+        filtrarAlinhamento(vet, qtd);
+        break;
+    case 0:
+        return;
+    default:
+        printf("Opcao invalida!\n");
+        break;
+    }
 }
 
 int lerString(char *str, int tamanho)
@@ -277,6 +361,26 @@ void filtrarEra(Personagem vet[], int qtd)
         printf("Nenhum personagem encontrado nessa era.\n");
 }
 
+void filtrarAlinhamento(Personagem vet[], int qtd)
+{
+    char alinhamentoBusca[20];
+    printf("\nDigite o Alinhamento a filtrar: ");
+    lerString(alinhamentoBusca, sizeof(alinhamentoBusca));
+    int encontrados = 0;
+    printf("\n--- Personagens com Alinhamento %s ---\n", alinhamentoBusca);
+    for (int i = 0; i < qtd; i++)
+    {
+        if (stricmp(vet[i].alinhamento, alinhamentoBusca) == 0)
+        {
+            printf("\nNome: %s\n", vet[i].nome);
+            printf("Classe: %s\n", vet[i].classe);
+            printf("Poder: %s\n", vet[i].poder);
+            printf("Era: %s\n", vet[i].era);
+            encontrados++;
+        }
+    }
+}
+
 void excluir(Personagem vet[], int *qtd)
 {
     char nomeBusca[50];
@@ -287,17 +391,31 @@ void excluir(Personagem vet[], int *qtd)
     {
         if (stricmp(vet[i].nome, nomeBusca) == 0)
         {
-            for (int j = i; j < *qtd - 1; j++)
-            {
-                vet[j] = vet[j + 1];
-            }
-            (*qtd)--;
+            printf("Nome: %s\n", vet[i].nome);
+            printf("Classe: %s\n", vet[i].classe);
+            printf("Poder: %s\n", vet[i].poder);
+            printf("Era: %s\n", vet[i].era);
+            printf("Alinhamento: %s\n", vet[i].alinhamento);
 
-            printf("Personagem excluido!\n");
+            char confirm[4];
+            printf("Tem certeza que deseja excluir este personagem? (sim/nao): ");
+            lerString(confirm, sizeof(confirm));
+            if (confirm[0] == 's' || confirm[0] == 'S')
+            {
+                for (int j = i; j < *qtd - 1; j++)
+                {
+                    vet[j] = vet[j + 1];
+                }
+                (*qtd)--;
+                printf("Personagem excluido com sucesso.\n");
+            }
+            else
+            {
+                printf("Exclusao cancelada.\n");
+            }
             return;
         }
     }
-
     printf("Personagem nao encontrado.\n");
 }
 
@@ -397,4 +515,19 @@ void editar(Personagem vet[], int qtd)
         }
     }
     printf("Personagem nao encontrado.\n");
+}
+
+int compara_nomes(const void *a, const void *b)
+{
+    Personagem *pa = (Personagem *)a;
+    Personagem *pb = (Personagem *)b;
+    return stricmp(pa->nome, pb->nome);
+}
+
+void listarOrdenado(Personagem vet[], int qtd)
+{
+    Personagem TEMP[MAX];
+    memcpy(TEMP, vet, qtd * sizeof(Personagem));
+    qsort(TEMP, qtd, sizeof(Personagem), compara_nomes);
+    listar(TEMP, qtd);
 }
