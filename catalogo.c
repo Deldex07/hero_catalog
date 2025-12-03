@@ -88,6 +88,9 @@ int main()
         case 5:
             excluir(catalogo, &qtd);
             break;
+        case 6:
+            editar(catalogo, qtd);
+            break;
         case 0:
             salvar(catalogo, qtd); // salvar ao sair
             printf("Saindo...\n");
@@ -108,6 +111,7 @@ void menu()
     printf("3 - Buscar por nome\n");
     printf("4 - Filtrar\n");
     printf("5 - Excluir personagem\n");
+    printf("6 - Editar personagem\n");
     printf("0 - Sair\n");
 }
 
@@ -211,7 +215,7 @@ void adicionar(Personagem vet[], int *qtd)
     lerString(vet[*qtd].nome, sizeof(vet[*qtd].nome));
 
     // Verifica duplicado
-    if (existeNome(vet, *qtd, vet[*qtd].nome))
+    if (existenome(vet, *qtd, vet[*qtd].nome))
     {
         printf("Já existe um personagem com esse nome!\n");
         return;
@@ -439,12 +443,15 @@ void salvar(Personagem vet[], int qtd)
 
     for (int i = 0; i < qtd; i++)
     {
-        fprintf(f, "%s;%s;%s;%s;%s\n",
-                vet[i].nome,
-                vet[i].classe,
-                vet[i].poder,
-                vet[i].era,
-                vet[i].alinhamento);
+        if (vet[i].nome[0] != '\0')
+        {
+            fprintf(f, "%s\n%s\n%s\n%s\n%s\n\n",
+                    vet[i].nome,
+                    vet[i].classe,
+                    vet[i].poder,
+                    vet[i].era,
+                    vet[i].alinhamento);
+        }
     }
 
     fclose(f);
@@ -493,7 +500,7 @@ void editar(Personagem vet[], int qtd)
             if (strlen(tmp) > 0)
             {
                 // Verificar duplicado
-                if (existeNome(vet, qtd, tmp) && stricmp(tmp, vet[i].nome) != 0)
+                if (existenome(vet, qtd, tmp) && stricmp(tmp, vet[i].nome) != 0)
                 {
                     printf("Erro: Já existe outro personagem com esse nome!\n");
                     return;
