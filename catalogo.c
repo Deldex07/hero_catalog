@@ -462,18 +462,29 @@ void carregar(Personagem vet[], int *qtd)
 {
     FILE *f = fopen("catalogo.txt", "r");
     if (!f)
+    {
+        printf("Erro ao abrir o arquivo para carregar!\n");
         return;
+    }
 
     while (*qtd < MAX)
     {
-        int r = fscanf(f, "%49[^;];%19[^;];%99[^;];%19[^;];%19[^\n]\n",
+        int r = fscanf(f, "%49[^\n]\n%19[^\n]\n%99[^\n]\n%19[^\n]\n%19[^\n]\n",
                        vet[*qtd].nome,
                        vet[*qtd].classe,
                        vet[*qtd].poder,
                        vet[*qtd].era,
                        vet[*qtd].alinhamento);
+
         if (r != 5)
             break;
+
+        if (vet[*qtd].nome[0] == '\0')
+        {
+            printf("Erro: Nome vazio encontrado no arquivo.\n");
+            continue;
+        }
+
         (*qtd)++;
     }
 
