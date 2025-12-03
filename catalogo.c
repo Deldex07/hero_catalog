@@ -32,6 +32,7 @@ void listarOrdenado(Personagem vet[], int qtd);
 void buscar(Personagem vet[], int qtd);
 void editar(Personagem vet[], int qtd);
 void excluir(Personagem vet[], int *qtd);
+int existenome(Personagem vet[], int qtd, const char *nome);
 
 /* --- Filtros e pesquisas específicas --- */
 void filtrarClasse(Personagem vet[], int qtd);
@@ -208,6 +209,13 @@ void adicionar(Personagem vet[], int *qtd)
 
     printf("Nome: ");
     lerString(vet[*qtd].nome, sizeof(vet[*qtd].nome));
+
+    // Verifica duplicado
+    if (existeNome(vet, *qtd, vet[*qtd].nome))
+    {
+        printf("Já existe um personagem com esse nome!\n");
+        return;
+    }
 
     printf("Classe: ");
     lerString(vet[*qtd].classe, sizeof(vet[*qtd].classe));
@@ -477,12 +485,22 @@ void editar(Personagem vet[], int qtd)
         {
             char tmp[200];
 
-            printf("--Edicao--\n");
+            printf("-- Edicao --\n");
 
             printf("Novo nome (Enter para manter): ");
             lerString(tmp, sizeof(tmp));
+
             if (strlen(tmp) > 0)
+            {
+                // Verificar duplicado
+                if (existeNome(vet, qtd, tmp) && stricmp(tmp, vet[i].nome) != 0)
+                {
+                    printf("Erro: Já existe outro personagem com esse nome!\n");
+                    return;
+                }
+
                 strncpy(vet[i].nome, tmp, sizeof(vet[i].nome) - 1);
+            }
 
             printf("Nova classe (Enter para manter): ");
             lerString(tmp, sizeof(tmp));
@@ -504,6 +522,7 @@ void editar(Personagem vet[], int qtd)
             if (strlen(tmp) > 0)
                 strncpy(vet[i].alinhamento, tmp, sizeof(vet[i].alinhamento) - 1);
 
+            // Garantir null terminator
             vet[i].nome[sizeof(vet[i].nome) - 1] = '\0';
             vet[i].classe[sizeof(vet[i].classe) - 1] = '\0';
             vet[i].poder[sizeof(vet[i].poder) - 1] = '\0';
@@ -514,6 +533,7 @@ void editar(Personagem vet[], int qtd)
             return;
         }
     }
+
     printf("Personagem nao encontrado.\n");
 }
 
@@ -530,4 +550,16 @@ void listarOrdenado(Personagem vet[], int qtd)
     memcpy(TEMP, vet, qtd * sizeof(Personagem));
     qsort(TEMP, qtd, sizeof(Personagem), compara_nomes);
     listar(TEMP, qtd);
+}
+
+int existenome(Personagem vet[], int qtd, const char *nome)
+{
+    for (int i = 0; i < qtd; i++)
+    {
+        if (stricmp(vet[i].nome, nome) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
 }
